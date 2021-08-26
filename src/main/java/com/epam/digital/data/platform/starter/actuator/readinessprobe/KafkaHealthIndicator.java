@@ -8,15 +8,16 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.KAFKA_HEALTH_TOPIC;
+import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.RESPONSE_TIMEOUT;
+
 @Component
 @ConditionalOnEnabledHealthIndicator("kafka")
 public class KafkaHealthIndicator implements HealthIndicator {
 
   private final KafkaTemplate<String, String> kafka;
 
-  private static final String KAFKA_HEALTH_TOPIC = "kafka-health-check";
   private static final String KAFKA_HEALTH_MESSAGE = "Check";
-  private static final int RESPONSE_TIMEOUT = 1000;
 
   public KafkaHealthIndicator(@Qualifier("kafkaTemplate") KafkaTemplate<String, String> kafka) {
     this.kafka = kafka;
