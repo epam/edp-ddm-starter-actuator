@@ -52,17 +52,20 @@ public class ActuatorConfig {
   private <O> Map<String, Object> sslProps(ProducerFactory<String, O> pf) {
     Map<String, Object> props = new HashMap<>();
 
-    putIfPresent(pf, props, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG);
-    putIfPresent(pf, props, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG);
-    putIfPresent(pf, props, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG);
-    putIfPresent(pf, props, "ssl.truststore.certificates");
-    putIfPresent(pf, props, "ssl.keystore.certificate.chain");
-    putIfPresent(pf, props, "ssl.keystore.key");
+    putIfPresent(props, pf, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG);
+    putIfPresent(props, pf, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG);
+    putIfPresent(props, pf, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG);
+    putIfPresent(props, pf, "ssl.truststore.certificates");
+    putIfPresent(props, pf, "ssl.keystore.certificate.chain");
+    putIfPresent(props, pf, "ssl.keystore.key");
 
     return props;
   }
 
-  private <O> void putIfPresent(ProducerFactory<String,O> pf, Map<String, Object> props, String prop) {
+  private <O> void putIfPresent(
+      Map<String, Object> props,
+      ProducerFactory<String, O> pf,
+      String prop) {
     if (pf.getConfigurationProperties().get(prop) != null) {
       props.put(prop, pf.getConfigurationProperties().get(prop));
     }

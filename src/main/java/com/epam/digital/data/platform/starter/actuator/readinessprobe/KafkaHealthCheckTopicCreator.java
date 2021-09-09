@@ -15,8 +15,8 @@ import static com.epam.digital.data.platform.starter.actuator.readinessprobe.Kaf
 import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.RESPONSE_TIMEOUT;
 import static org.apache.kafka.common.config.TopicConfig.RETENTION_MS_CONFIG;
 
-//@Component
-//@ConditionalOnEnabledHealthIndicator("kafka")
+@Component
+@ConditionalOnEnabledHealthIndicator("kafka")
 public class KafkaHealthCheckTopicCreator {
 
   private static final Long RETENTION_MS = 1000L;
