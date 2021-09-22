@@ -1,25 +1,23 @@
 package com.epam.digital.data.platform.starter.actuator.readinessprobe;
 
+import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.KAFKA_HEALTH_TOPIC;
+import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.RETENTION_MS;
+import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.TOPIC_CREATION_TIMEOUT;
+import static org.apache.kafka.common.config.TopicConfig.RETENTION_MS_CONFIG;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.KAFKA_HEALTH_TOPIC;
-import static com.epam.digital.data.platform.starter.actuator.readinessprobe.KafkaConstants.RESPONSE_TIMEOUT;
-import static org.apache.kafka.common.config.TopicConfig.RETENTION_MS_CONFIG;
-
 @Component
 @ConditionalOnEnabledHealthIndicator("kafka")
 public class KafkaHealthCheckTopicCreator {
-
-  private static final Long RETENTION_MS = 1000L;
 
   private static final int NUM_PARTITIONS = 1;
   private static final short REPLICATION_FACTOR = 1;
@@ -41,19 +39,19 @@ public class KafkaHealthCheckTopicCreator {
     try {
       return actuatorKafkaAdminClient.listTopics()
           .names()
-          .get(RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
+          .get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS)
           .contains(KAFKA_HEALTH_TOPIC);
     } catch (Exception e) {
-      throw new CreateKafkaTopicException("Failed to retrieve existing kafka topics: ", e);
+      throw new CreateKafkaTopicException("Failed to retrieve existing kafka topics", e);
     }
   }
 
   private void create() {
     var createTopicsResult = actuatorKafkaAdminClient.createTopics(getConfiguredHealthTopics());
     try {
-      createTopicsResult.all().get(RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS);
+      createTopicsResult.all().get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS);
     } catch (Exception e) {
-      throw new CreateKafkaTopicException("Failed to create a kafka topic: ", e);
+      throw new CreateKafkaTopicException("Failed to create a kafka topic", e);
     }
   }
 
