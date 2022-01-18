@@ -69,7 +69,7 @@ class KafkaHealthCheckTopicCreatorTest {
 
   @BeforeEach
   void setup() {
-    instance = new KafkaHealthCheckTopicCreator(adminClient);
+    instance = new KafkaHealthCheckTopicCreator(() -> adminClient);
     existedTopics = new HashSet<>();
     existedTopics.add("some-topic");
     existedTopics.add("another-topic");

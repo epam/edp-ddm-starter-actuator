@@ -31,6 +31,7 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Configuration
 public class ActuatorConfig {
@@ -54,7 +55,11 @@ public class ActuatorConfig {
 
   @Bean
   @ConditionalOnEnabledHealthIndicator("kafka")
-  public <O> AdminClient actuatorKafkaAdminClient(ProducerFactory<String, O> pf) {
+  public <O> Supplier<AdminClient> actuatorKafkaAdminClientFactory(ProducerFactory<String, O> pf) {
+    return () -> actuatorKafkaAdminClient(pf);
+  }
+
+  private <O> AdminClient actuatorKafkaAdminClient(ProducerFactory<String, O> pf) {
     Map<String, Object> props = new HashMap<>();
     props.put(
         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -38,22 +39,24 @@ public class KafkaHealthCheckTopicCreator {
   private static final int NUM_PARTITIONS = 1;
   private static final short REPLICATION_FACTOR = 1;
 
-  private final AdminClient actuatorKafkaAdminClient;
+  private final Supplier<AdminClient> actuatorKafkaAdminClientFactory;
 
-  public KafkaHealthCheckTopicCreator(AdminClient actuatorKafkaAdminClient) {
-    this.actuatorKafkaAdminClient = actuatorKafkaAdminClient;
+  public KafkaHealthCheckTopicCreator(Supplier<AdminClient> actuatorKafkaAdminClientFactory) {
+    this.actuatorKafkaAdminClientFactory = actuatorKafkaAdminClientFactory;
   }
 
   @PostConstruct
   public void createKafkaTopic() {
-    if (!isTopicExist()) {
-      create();
+    try (var adminClient = actuatorKafkaAdminClientFactory.get()) {
+      if (!isTopicExist(adminClient)) {
+        create(adminClient);
+      }
     }
   }
 
-  private boolean isTopicExist() {
+  private boolean isTopicExist(AdminClient adminClient) {
     try {
-      return actuatorKafkaAdminClient.listTopics()
+      return adminClient.listTopics()
           .names()
           .get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS)
           .contains(KAFKA_HEALTH_TOPIC);
@@ -62,8 +65,8 @@ public class KafkaHealthCheckTopicCreator {
     }
   }
 
-  private void create() {
-    var createTopicsResult = actuatorKafkaAdminClient.createTopics(getConfiguredHealthTopics());
+  private void create(AdminClient adminClient) {
+    var createTopicsResult = adminClient.createTopics(getConfiguredHealthTopics());
     try {
       createTopicsResult.all().get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS);
     } catch (Exception e) {
