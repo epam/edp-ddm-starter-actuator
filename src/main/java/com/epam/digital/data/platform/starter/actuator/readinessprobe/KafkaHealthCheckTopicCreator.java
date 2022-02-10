@@ -29,6 +29,10 @@ import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.errors.TopicExistsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +42,8 @@ public class KafkaHealthCheckTopicCreator {
 
   private static final int NUM_PARTITIONS = 1;
   private static final short REPLICATION_FACTOR = 1;
+
+  private final Logger log = LoggerFactory.getLogger(KafkaHealthCheckTopicCreator.class);
 
   private final Supplier<AdminClient> actuatorKafkaAdminClientFactory;
 
@@ -67,10 +73,20 @@ public class KafkaHealthCheckTopicCreator {
 
   private void create(AdminClient adminClient) {
     var createTopicsResult = adminClient.createTopics(getConfiguredHealthTopics());
+    createTopicsResult.values().forEach(this::handleTopicCreationResult);
+  }
+
+  private void handleTopicCreationResult(String topicName, KafkaFuture<Void> future) {
     try {
-      createTopicsResult.all().get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS);
+      future.get(TOPIC_CREATION_TIMEOUT, TimeUnit.SECONDS);
     } catch (Exception e) {
-      throw new CreateKafkaTopicException("Failed to create a kafka topic", e);
+      if (e.getCause() instanceof TopicExistsException) {
+        log.warn("Topic {} was in missing topics list, but now exists", topicName);
+      } else {
+        throw new CreateKafkaTopicException(
+            String.format("Failed to create topic %s in %d sec", topicName, TOPIC_CREATION_TIMEOUT),
+            e);
+      }
     }
   }
 

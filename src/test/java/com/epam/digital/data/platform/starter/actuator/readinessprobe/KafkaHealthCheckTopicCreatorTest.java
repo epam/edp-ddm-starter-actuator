@@ -22,6 +22,7 @@ import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.errors.TopicExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +80,8 @@ class KafkaHealthCheckTopicCreatorTest {
   @Test
   void shouldCreateTopic() throws Exception {
     customizeAdminClientMock(existedTopics);
-    when(createTopicsResult.all()).thenReturn(createTopicsFuture);
+    when(createTopicsResult.values())
+            .thenReturn(Collections.singletonMap(KAFKA_HEALTH_TOPIC, createTopicsFuture));
     when(adminClient.createTopics(anyCollection())).thenReturn(createTopicsResult);
 
     instance.createKafkaTopic();
@@ -113,10 +116,26 @@ class KafkaHealthCheckTopicCreatorTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenTimeExceededLimit() throws Exception {
+  void shouldThrowExceptionWhenNonSuccessTopicCreation() throws Exception {
     customizeAdminClientMock(existedTopics);
+    when(adminClient.createTopics(anyCollection())).thenReturn(createTopicsResult);
+    when(createTopicsResult.values())
+        .thenReturn(Collections.singletonMap(KAFKA_HEALTH_TOPIC, createTopicsFuture));
+    when(createTopicsFuture.get(anyLong(), any(TimeUnit.class))).thenThrow(new RuntimeException());
 
     assertThrows(CreateKafkaTopicException.class, () -> instance.createKafkaTopic());
+  }
+
+  @Test
+  void shouldNotFailIfTopicExistsException() throws Exception {
+    customizeAdminClientMock(existedTopics);
+    when(createTopicsResult.values())
+            .thenReturn(Collections.singletonMap(KAFKA_HEALTH_TOPIC, createTopicsFuture));
+    when(adminClient.createTopics(anyCollection())).thenReturn(createTopicsResult);
+    when(createTopicsFuture.get(anyLong(), any(TimeUnit.class)))
+            .thenThrow(new RuntimeException(new TopicExistsException("")));
+
+    instance.createKafkaTopic();
   }
 
   private void customizeAdminClientMock(Set<String> topics) throws Exception {
