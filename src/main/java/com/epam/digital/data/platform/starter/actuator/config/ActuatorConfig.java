@@ -45,7 +45,7 @@ public class ActuatorConfig {
 
   @Bean
   @ConditionalOnEnabledHealthIndicator("kafka")
-  public <O> KafkaTemplate<String, O> kafkaTemplate(
+  public <O> KafkaTemplate<String, O> actuatorKafkaTemplate(
       ProducerFactory<String, O> pf, ConcurrentKafkaListenerContainerFactory<String, O> factory) {
     KafkaTemplate<String, O> kafkaTemplate = new KafkaTemplate<>(pf);
     factory.getContainerProperties().setMissingTopicsFatal(false);
@@ -76,9 +76,9 @@ public class ActuatorConfig {
     putIfPresent(props, pf, CommonClientConfigs.SECURITY_PROTOCOL_CONFIG);
     putIfPresent(props, pf, SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG);
     putIfPresent(props, pf, SslConfigs.SSL_KEYSTORE_TYPE_CONFIG);
-    putIfPresent(props, pf, "ssl.truststore.certificates");
-    putIfPresent(props, pf, "ssl.keystore.certificate.chain");
-    putIfPresent(props, pf, "ssl.keystore.key");
+    putIfPresent(props, pf, SslConfigs.SSL_TRUSTSTORE_CERTIFICATES_CONFIG);
+    putIfPresent(props, pf, SslConfigs.SSL_KEYSTORE_CERTIFICATE_CHAIN_CONFIG);
+    putIfPresent(props, pf, SslConfigs.SSL_KEYSTORE_KEY_CONFIG);
 
     return props;
   }

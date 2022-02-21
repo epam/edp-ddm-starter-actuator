@@ -39,7 +39,7 @@ public class KafkaHealthIndicator implements HealthIndicator {
 
   private static final String KAFKA_HEALTH_MESSAGE = "Check";
 
-  public KafkaHealthIndicator(@Qualifier("kafkaTemplate") KafkaTemplate<String, String> kafka) {
+  public KafkaHealthIndicator(@Qualifier("actuatorKafkaTemplate") KafkaTemplate<String, String> kafka) {
     this.kafka = kafka;
   }
 
