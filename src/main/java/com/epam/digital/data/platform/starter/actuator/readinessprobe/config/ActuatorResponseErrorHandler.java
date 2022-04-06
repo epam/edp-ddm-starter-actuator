@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.epam.digital.data.platform.starter.actuator.readinessprobe;
+package com.epam.digital.data.platform.starter.actuator.readinessprobe.config;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 
-@Configuration
-@ConfigurationProperties(prefix = "management.health.webservices.readiness")
-public class ReadinessServicesConfig {
+@Component
+public class ActuatorResponseErrorHandler extends DefaultResponseErrorHandler {
 
-  private Set<String> services = new HashSet<>();
-
-  public Set<String> getServices() {
-    return services;
-  }
-
-  public void setServices(Set<String> services) {
-    this.services = services;
+  @Override
+  public boolean hasError(ClientHttpResponse response) {
+    return false;
   }
 }

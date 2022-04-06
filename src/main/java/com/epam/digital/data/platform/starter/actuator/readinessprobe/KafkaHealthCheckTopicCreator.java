@@ -33,11 +33,7 @@ import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
-import org.springframework.stereotype.Component;
 
-@Component
-@ConditionalOnEnabledHealthIndicator("kafka")
 public class KafkaHealthCheckTopicCreator {
 
   private static final int NUM_PARTITIONS = 1;
@@ -45,15 +41,15 @@ public class KafkaHealthCheckTopicCreator {
 
   private final Logger log = LoggerFactory.getLogger(KafkaHealthCheckTopicCreator.class);
 
-  private final Supplier<AdminClient> actuatorKafkaAdminClientFactory;
+  private final Supplier<AdminClient> adminClientFactory;
 
-  public KafkaHealthCheckTopicCreator(Supplier<AdminClient> actuatorKafkaAdminClientFactory) {
-    this.actuatorKafkaAdminClientFactory = actuatorKafkaAdminClientFactory;
+  public KafkaHealthCheckTopicCreator(Supplier<AdminClient> adminClientFactory) {
+    this.adminClientFactory = adminClientFactory;
   }
 
   @PostConstruct
   public void createKafkaTopic() {
-    try (var adminClient = actuatorKafkaAdminClientFactory.get()) {
+    try (var adminClient = adminClientFactory.get()) {
       if (!isTopicExist(adminClient)) {
         create(adminClient);
       }

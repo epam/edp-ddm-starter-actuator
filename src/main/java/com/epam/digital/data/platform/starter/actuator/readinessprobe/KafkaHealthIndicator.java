@@ -22,31 +22,26 @@ import static com.epam.digital.data.platform.starter.actuator.readinessprobe.Kaf
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 
-@Component
-@ConditionalOnEnabledHealthIndicator("kafka")
 public class KafkaHealthIndicator implements HealthIndicator {
 
   private final Logger log = LoggerFactory.getLogger(KafkaHealthIndicator.class);
 
-  private final KafkaTemplate<String, String> kafka;
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
   private static final String KAFKA_HEALTH_MESSAGE = "Check";
 
-  public KafkaHealthIndicator(@Qualifier("actuatorKafkaTemplate") KafkaTemplate<String, String> kafka) {
-    this.kafka = kafka;
+  public KafkaHealthIndicator(KafkaTemplate<String, String> kafkaTemplate) {
+    this.kafkaTemplate = kafkaTemplate;
   }
 
   @Override
   public Health health() {
     try {
-      kafka.send(KAFKA_HEALTH_TOPIC, KAFKA_HEALTH_MESSAGE)
+      kafkaTemplate.send(KAFKA_HEALTH_TOPIC, KAFKA_HEALTH_MESSAGE)
           .get(RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       log.error("KafkaHealthIndicator failed", e);

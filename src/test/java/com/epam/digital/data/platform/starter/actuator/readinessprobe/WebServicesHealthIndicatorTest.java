@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Set;
+
+import com.epam.digital.data.platform.starter.actuator.readinessprobe.config.ReadinessServicesConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

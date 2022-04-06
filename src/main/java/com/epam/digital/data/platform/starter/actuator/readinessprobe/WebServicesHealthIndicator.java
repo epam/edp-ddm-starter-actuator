@@ -17,6 +17,8 @@
 package com.epam.digital.data.platform.starter.actuator.readinessprobe;
 
 import java.util.Set;
+
+import com.epam.digital.data.platform.starter.actuator.readinessprobe.config.ReadinessServicesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
@@ -31,7 +33,7 @@ public class WebServicesHealthIndicator implements HealthIndicator {
   private final Set<String> services;
 
   public WebServicesHealthIndicator(
-      ReadinessServicesConfig servicesConfig, UrlAvailabilityChecker urlAvailabilityChecker) {
+          ReadinessServicesConfig servicesConfig, UrlAvailabilityChecker urlAvailabilityChecker) {
     this.services = servicesConfig.getServices();
     this.urlAvailabilityChecker = urlAvailabilityChecker;
   }

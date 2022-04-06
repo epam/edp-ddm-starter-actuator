@@ -5,7 +5,7 @@
 
 	<groupId>com.epam.digital.data.platform</groupId>
 	<artifactId>ddm-starter-actuator</artifactId>
-	<version>1.5.2-SNAPSHOT</version>
+	<version>1.5.3-SNAPSHOT</version>
 	
 	<name>ddm-starter-actuator</name>
 	<description>Actuator related functionality extracted to custom starter</description>
@@ -17,7 +17,7 @@
 		<maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
 		<sonar.coverage.exclusions>
 			<!-- do not calc coverage for the classes without BL: -->
-			**/**/*Config*,
+			**/**/*Config*
 		</sonar.coverage.exclusions>
 	</properties>
 
@@ -51,6 +51,7 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -84,5 +85,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
