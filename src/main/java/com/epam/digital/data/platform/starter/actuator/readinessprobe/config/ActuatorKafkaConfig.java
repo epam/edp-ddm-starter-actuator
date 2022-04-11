@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 @Configuration
 @ConditionalOnClass(KafkaTemplate.class)
 @ConditionalOnEnabledHealthIndicator("kafka")
-public class KafkaConfig {
+public class ActuatorKafkaConfig {
 
   @Bean
   public KafkaHealthIndicator kafkaHealthIndicator(KafkaTemplate<String, String> kafkaTemplate) {
